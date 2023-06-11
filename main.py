@@ -5,57 +5,55 @@ import sys
 import requests
 import imutils
 
+# Constants
+ESC_BOTTON = 27
 
-VIDEO_FEED_ERR = "Video feed not working. Exiting..."
-url = "http://10.10.1.152:8080/shot.jpg"
+# Error messages
+VIDEO_READ_ERR = "Failed to read video frame"
+VIDEO_CAPTURE_ERR = "Failed to open video capture"
+
+# GUI messages
+WINDOW_TITLE = "Phone Camera - (Press Esc to exit)"
+WINNER_MESSAGE = "The winner is: "
+
+# URL to connect to the phone's camera using the app "IP Webcam"
+URL = "http://10.10.1.152:8080/shot.jpg"
 
 
-# def video_feed_ok():
-#     pass
+
+def play_game(img_resp):
+    """Manages the game play."""
+
+    while True:
+        # Capture the video frame by frame and show it to the user
+        ret, frame = img_resp.read()
+        if not ret:
+            raise AttributeError(VIDEO_READ_ERR)
+
+        frame = imutils.resize(frame, width=1000, height=1800)
+        cv2.imshow( WINDOW_TITLE, frame )
 
 
-def play_game():
-    pass
+        # Press Esc key to exit
+        if cv2.waitKey(1) == ESC_BOTTON:
+            break
 
 
 def main(args):
+    # import the model
 
     # connect to the phone's camera
     # While loop to continuously fetching data from the Url
-    while True:
-        try:
-            img_resp = requests.get(url)
-            # Process the response if the connection is successful
-            print(img_resp.status_code)
-        except requests.ConnectionError:
-            # Handle connection-related errors
-            raise Exception("A connection error occurred.")
-        except requests.Timeout:
-            # Handle timeout error
-            raise Exception("The request timed out.")
-        except requests.TooManyRedirects:
-            # Handle too many redirects error
-            raise Exception("Too many redirects occurred.")
-        except requests.RequestException:
-            # Handle other request-related errors
-            raise Exception("An error occurred during the request.")
-        img_arr = np.array(bytearray(img_resp.content), dtype=np.uint8)
-        img = cv2.imdecode(img_arr, -1)
-        img = imutils.resize(img, width=1000, height=1800)
-        cv2.imshow("Phone Camera - (Press Esc to exit)", img)
-
-        # Press Esc key to exit
-        if cv2.waitKey(1) == 27:
-            break
-
-    cv2.destroyAllWindows()
-
-    # import the model
-
-    # play the game
+    img_resp = cv2.VideoCapture(URL)
+    if not vid.isOpened():
+        raise OSError(VIDEO_CAPTURE_ERR)
 
     # display the winner
+    result = play_game(img_resp)
+    print(WINNER_MESSAGE, result)
 
+    img_resp.release()
+    cv2.destroyAllWindows()
     sys.exit()
 
 
